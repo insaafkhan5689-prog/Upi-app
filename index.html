@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<title>UPI QR Pro</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+:root{
+  --bg:#f4f5f7;
+  --card:#fff;
+  --text:#111;
+  --muted:#707070;
+  --border:#e3e3e3;
+  --accent:#111;
+  --soft:#f0f1f3;
+}
+.dark{
+  --bg:#101114;
+  --card:#191a1f;
+  --text:#fff;
+  --muted:#aaa;
+  --border:#303137;
+  --accent:#fff;
+  --soft:#292a30;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+.app{
+  max-width:480px;
+  margin:auto;
+  min-height:100vh;
+  padding:18px 16px 35px;
+}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+.logo{
+  font-size:24px;
+  font-weight:800;
+}
+.icon-btn{
+  width:44px;
+  height:44px;
+  border:1px solid var(--border);
+  border-radius:50%;
+  background:var(--card);
+  color:var(--text);
+  font-size:20px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:20px;
+  margin-bottom:15px;
+}
+label{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin:12px 0 6px;
+}
+input{
+  width:100%;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--card);
+  color:var(--text);
+  font-size:16px;
+  outline:none;
+}
+.amount-wrap{
+  position:relative;
+}
+.amount-wrap span{
+  position:absolute;
+  left:14px;
+  top:14px;
+  font-size:20px;
+}
+.amount-wrap input{
+  padding-left:34px;
+  font-size:22px;
+  font-weight:bold;
+}
+.quick{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+.quick button,.secondary{
+  border:1px solid var(--border);
+  background:var(--soft);
+  color:var(--text);
+  padding:11px 5px;
+  border-radius:10px;
+}
+.primary{
+  width:100%;
+  border:0;
+  background:var(--accent);
+  color:var(--bg);
+  padding:15px;
+  border-radius:13px;
+  font-size:17px;
+  font-weight:bold;
+  margin-top:15px;
+}
+#qrArea{
+  text-align:center;
+  display:none;
+}
+#qrcode{
+  display:flex;
+  justify-content:center;
+  padding:12px;
+}
+.amount-display{
+  font-size:28px;
+  font-weight:800;
+  margin:5px 0;
+}
+.receiver{
+  color:var(--muted);
+  font-size:14px;
+}
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:15px;
+}
+.actions button{
+  border:1px solid var(--border);
+  background:var(--soft);
+  color:var(--text);
+  padding:13px;
+  border-radius:12px;
+  font-size:15px;
+}
+.history-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.history-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.history-item:last-child{border-bottom:0}
+.history-item button{
+  border:0;
+  background:var(--soft);
+  color:var(--text);
+  border-radius:9px;
+  padding:8px 12px;
+}
+.empty{
+  color:var(--muted);
+  text-align:center;
+  padding:15px 0;
+}
+.small{
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+  margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <div class="logo">💳 UPI QR Pro</div>
+  <button class="icon-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+</header>
+
+<div class="card">
+
+  <label>UPI ID</label>
+  <input id="upi" placeholder="example@upi">
+
+  <label>Receiver Name</label>
+  <input id="name" placeholder="Your Name">
+
+  <label>Amount</label>
+
+  <div class="amount-wrap">
+    <span>₹</span>
+    <input id="amount" type="number" min="1" step="0.01" placeholder="0">
+  </div>
+
+  <div class="quick">
+    <button onclick="setAmount(50)">₹50</button>
+    <button onclick="setAmount(100)">₹100</button>
+    <button onclick="setAmount(200)">₹200</button>
+    <button onclick="setAmount(500)">₹500</button>
+  </div>
+
+  <button class="primary" onclick="generateQR()">
+    Generate QR
+  </button>
+
+</div>
+
+
+<div class="card" id="qrArea">
+
+  <div id="qrcode"></div>
+
+  <div class="amount-display" id="showAmount"></div>
+
+  <div class="receiver" id="showReceiver"></div>
+
+  <div class="actions">
+    <button onclick="downloadQR()">⬇️ Save QR</button>
+    <button onclick="shareQR()">📤 Share QR</button>
+  </div>
+
+  <div class="actions">
+    <button onclick="copyUPI()">📋 Copy UPI</button>
+    <button onclick="clearQR()">🔄 Clear</button>
+  </div>
+
+</div>
+
+
+<div class="card">
+
+  <div class="history-title">
+    <strong>🕘 Recent Amounts</strong>
+    <button class="secondary" onclick="clearHistory()">Clear</button>
+  </div>
+
+  <div id="history"></div>
+
+</div>
+
+<div class="small">
+  UPI QR Pro • Personal Use
+</div>
+
+</div>
+
+
+<script>
+
+const upiInput = document.getElementById("upi");
+const nameInput = document.getElementById("name");
+const amountInput = document.getElementById("amount");
+
+
+// Load saved settings
+upiInput.value = localStorage.getItem("upi_id") || "";
+nameInput.value = localStorage.getItem("receiver_name") || "";
+
+
+// Quick amount
+function setAmount(value){
+  amountInput.value = value;
+}
+
+
+// Generate QR
+function generateQR(){
+
+  const upi = upiInput.value.trim();
+  const name = nameInput.value.trim() || "UPI Payment";
+  const amount = amountInput.value.trim();
+
+  if(!upi){
+    alert("Please enter your UPI ID.");
+    return;
+  }
+
+  if(!amount || Number(amount) <= 0){
+    alert("Please enter a valid amount.");
+    return;
+  }
+
+ 
